@@ -9,9 +9,9 @@ ADMIN_TOKEN="${ADMIN_TOKEN:-IronRiff-2026}"
 K="microk8s kubectl"
 step() { echo -e "\n\033[1;31m==> $*\033[0m"; }
 
-step "1/7 Swap 2 ГБ (на сервере всего 2 ГБ RAM)"
+step "1/7 Swap 1 ГБ (на сервере всего 2 ГБ RAM и 10 ГБ диска)"
 if ! swapon --show | grep -q /swapfile; then
-  fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+  fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
   grep -q /swapfile /etc/fstab || echo "/swapfile none swap sw 0 0" >> /etc/fstab
 fi
 
@@ -21,6 +21,14 @@ if ! command -v microk8s >/dev/null; then
 fi
 microk8s status --wait-ready >/dev/null
 microk8s enable dns hostpath-storage ingress helm3
+# Диск маленький: снижаем порог, при котором kubelet начинает выселять поды и удалять образы
+ARGS=/var/snap/microk8s/current/args/kubelet
+if ! grep -q "nodefs.available<300Mi" "$ARGS"; then
+  sed -i '/^--eviction-hard/d' "$ARGS"
+  echo '--eviction-hard="memory.available<100Mi,nodefs.available<300Mi,imagefs.available<300Mi"' >> "$ARGS"
+  snap restart microk8s.daemon-kubelite && microk8s status --wait-ready >/dev/null
+fi
+apt-get clean
 
 step "3/7 Docker (только для сборки образов)"
 command -v docker >/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq docker.io)
