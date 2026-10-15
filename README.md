@@ -53,10 +53,10 @@ docs/               отчёт и презентация
 ## CI/CD
 
 GitHub Actions (`.github/workflows/ci-cd.yml`):
-1. на каждый push и pull request — `pytest`;
-2. при push в `main` — сборка образов `shop-backend` и `shop-frontend` с тегом коммита,
-   загрузка на сервер по SSH (`docker save | ctr image import`), `kubectl apply` манифестов,
-   ожидание rollout, удаление старых образов и проверка `/api/health`.
+1. **test** — `pytest` на каждый push и pull request;
+2. **build** — сборка образов `shop-backend` и `shop-frontend` с тегом коммита, архив образов сохраняется как artifact;
+3. **deploy** (только push в `main`) — загрузка образов на сервер по SSH (`ctr image import`),
+   `kubectl apply` манифестов, ожидание rollout, удаление старых образов и проверка `/api/health`.
 
 Секреты репозитория: `SERVER_HOST` — IP сервера, `SSH_KEY` — приватный SSH-ключ root.
 

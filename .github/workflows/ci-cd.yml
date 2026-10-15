@@ -1,4 +1,5 @@
-# CI/CD: тесты на каждый push/PR, а при push в main сборка образов и выкатка на сервер.
+# CI/CD: test -> build -> deploy.
+# test и build идут на каждый push/PR, deploy — только при push в main.
 # Нужные секреты репозитория: SERVER_HOST (IP сервера) и SSH_KEY (приватный ключ для root).
 name: CI/CD
 
@@ -21,15 +22,48 @@ jobs:
       - run: python -m pytest -q
         working-directory: backend
 
-  deploy:
+  build:
     needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Тег образов = короткий SHA коммита
+        id: tag
+        run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Собрать образы
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          docker build -t shop-backend:$TAG backend
+          docker build -t shop-frontend:$TAG frontend
+          docker save shop-backend:$TAG shop-frontend:$TAG | gzip > images.tar.gz
+
+      - name: Сохранить образы для deploy
+        uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: images.tar.gz
+          retention-days: 1
+
+  deploy:
+    needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     concurrency: deploy
     env:
       HOST: ${{ secrets.SERVER_HOST }}
+      TAG: ${{ needs.build.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Скачать образы из build
+        uses: actions/download-artifact@v4
+        with:
+          name: images
 
       - name: Настроить SSH
         run: |
@@ -38,15 +72,8 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
-      - name: Собрать образы
-        run: |
-          TAG=${GITHUB_SHA::7}
-          echo "TAG=$TAG" >> "$GITHUB_ENV"
-          docker build -t shop-backend:$TAG backend
-          docker build -t shop-frontend:$TAG frontend
-
       - name: Загрузить образы на сервер
-        run: docker save shop-backend:$TAG shop-frontend:$TAG | gzip | ssh root@$HOST 'gunzip | microk8s ctr image import -'
+        run: ssh root@$HOST 'gunzip | microk8s ctr image import -' < images.tar.gz
 
       - name: Применить манифесты
         run: |
