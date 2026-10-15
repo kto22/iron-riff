@@ -65,6 +65,9 @@ class Database:
     def init(self) -> None:
         """Создаёт таблицы и заполняет каталог из JSON, если он пуст."""
         with self.connect() as conn:
+            # В PostgreSQL 15+ в схеме public нельзя создавать таблицы обычному
+            # пользователю, поэтому заводим личную схему (search_path: "$user", public)
+            conn.execute("CREATE SCHEMA IF NOT EXISTS AUTHORIZATION CURRENT_USER")
             conn.execute(SCHEMA)
             count = conn.execute("SELECT count(*) AS n FROM products").fetchone()["n"]
             if count == 0:
