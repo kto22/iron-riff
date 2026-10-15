@@ -50,6 +50,16 @@ docs/               отчёт и презентация
 | GET | `/api/stats`, `/api/stats/chart.png` | статистика и график |
 | GET | `/api/docs` | Swagger UI |
 
+## CI/CD
+
+GitHub Actions (`.github/workflows/ci-cd.yml`):
+1. на каждый push и pull request — `pytest`;
+2. при push в `main` — сборка образов `shop-backend` и `shop-frontend` с тегом коммита,
+   загрузка на сервер по SSH (`docker save | ctr image import`), `kubectl apply` манифестов,
+   ожидание rollout, удаление старых образов и проверка `/api/health`.
+
+Секреты репозитория: `SERVER_HOST` — IP сервера, `SSH_KEY` — приватный SSH-ключ root.
+
 ## Запуск
 
 Сервер: `bash infra/scripts/deploy.sh root@<ip>` с ноутбука (или `bash infra/scripts/install.sh` на сервере).
