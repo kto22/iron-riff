@@ -26,7 +26,16 @@ ARGS=/var/snap/microk8s/current/args/kubelet
 if ! grep -q "nodefs.available<300Mi" "$ARGS"; then
   sed -i '/^--eviction-hard/d' "$ARGS"
   echo '--eviction-hard="memory.available<100Mi,nodefs.available<300Mi,imagefs.available<300Mi"' >> "$ARGS"
+  printf -- '--image-gc-high-threshold=97\n--image-gc-low-threshold=95\n' >> "$ARGS"
   snap restart microk8s.daemon-kubelite && microk8s status --wait-ready >/dev/null
+fi
+# containerd: не хранить сжатые слои после распаковки (экономит ~1 ГБ);
+# unpigz из пакета pigz нужен containerd для распаковки образов
+command -v unpigz >/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq pigz)
+TPL=/var/snap/microk8s/current/args/containerd-template.toml
+if ! grep -q discard_unpacked_layers "$TPL"; then
+  sed -i '/\[plugins."io.containerd.grpc.v1.cri".containerd\]/a\    discard_unpacked_layers = true' "$TPL"
+  snap restart microk8s.daemon-containerd
 fi
 apt-get clean
 

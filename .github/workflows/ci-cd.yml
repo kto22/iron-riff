@@ -72,6 +72,14 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
+      - name: Освободить место на сервере
+        # диск всего 10 ГБ: заранее удаляем образы магазина, которые сейчас не запущены
+        run: |
+          ssh root@$HOST 'used=$(microk8s kubectl -n shop get pods -o jsonpath="{.items[*].spec.containers[*].image}");
+            for img in $(microk8s ctr images ls -q | grep -E "shop-(backend|frontend):"); do
+              echo "$used" | grep -qw "${img#docker.io/library/}" || microk8s ctr images rm "$img";
+            done; df -h / | tail -1'
+
       - name: Загрузить образы на сервер
         run: ssh root@$HOST 'gunzip | microk8s ctr image import -' < images.tar.gz
 
