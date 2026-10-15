@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: backend }
+  template:
+    metadata:
+      labels: { app: backend }
+    spec:
+      containers:
+        - name: backend
+          image: shop-backend:1.0
+          imagePullPolicy: Never   # образ собран и импортирован на сервере
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: { name: shop-db-pguser-shop, key: uri }
+            - { name: REDIS_SENTINEL_HOST, value: redis-sentinel }
+            - { name: REDIS_MASTER_NAME, value: mymaster }
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef: { name: shop-admin, key: token }
+          ports: [{ containerPort: 8000 }]
+          readinessProbe:
+            httpGet: { path: /api/health, port: 8000 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 320Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: shop
+spec:
+  selector: { app: backend }
+  ports: [{ port: 8000 }]

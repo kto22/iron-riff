@@ -1,0 +1,164 @@
+[
+  {
+    "brand": "Jackson",
+    "model": "Soloist SL2 Pro",
+    "category": "electric",
+    "price": 1499,
+    "stock": 4,
+    "color": "#d4141c",
+    "description": "Сквозной гриф, звукосниматели Seymour Duncan, Floyd Rose — классика шред-сцены 80-х."
+  },
+  {
+    "brand": "B.C. Rich",
+    "model": "Warlock Extreme",
+    "category": "electric",
+    "price": 899,
+    "stock": 3,
+    "color": "#111111",
+    "description": "Агрессивная форма корпуса, хамбакеры с высоким выходом."
+  },
+  {
+    "brand": "ESP LTD",
+    "model": "EC-1000 Deluxe",
+    "category": "electric",
+    "price": 1099,
+    "stock": 5,
+    "color": "#f5b700",
+    "description": "Корпус из красного дерева, активные EMG — тяжёлый и плотный звук."
+  },
+  {
+    "brand": "Gibson",
+    "model": "Flying V '80s",
+    "category": "electric",
+    "price": 2199,
+    "stock": 2,
+    "color": "#ffffff",
+    "description": "Легендарная V-образная форма, винтажные хамбакеры."
+  },
+  {
+    "brand": "Kramer",
+    "model": "Baretta Original",
+    "category": "electric",
+    "price": 799,
+    "stock": 6,
+    "color": "#ff3d7f",
+    "description": "Один хамбакер, один регулятор громкости и Floyd Rose. Ничего лишнего."
+  },
+  {
+    "brand": "Ibanez",
+    "model": "RG550 Genesis",
+    "category": "electric",
+    "price": 1199,
+    "stock": 4,
+    "color": "#7a2cff",
+    "description": "Тонкий гриф Super Wizard для скоростной игры."
+  },
+  {
+    "brand": "Schecter",
+    "model": "Hellraiser C-1",
+    "category": "electric",
+    "price": 1049,
+    "stock": 5,
+    "color": "#2a0d0d",
+    "description": "Активные EMG 81/85 и корпус из махагони."
+  },
+  {
+    "brand": "Fender",
+    "model": "Precision Bass",
+    "category": "bass",
+    "price": 1399,
+    "stock": 3,
+    "color": "#3355ff",
+    "description": "Эталонный бас: плотная середина и простота."
+  },
+  {
+    "brand": "Ibanez",
+    "model": "SR500E",
+    "category": "bass",
+    "price": 849,
+    "stock": 4,
+    "color": "#555555",
+    "description": "Лёгкий корпус, активный эквалайзер Bartolini."
+  },
+  {
+    "brand": "Spector",
+    "model": "Euro 4",
+    "category": "bass",
+    "price": 1899,
+    "stock": 2,
+    "color": "#8b0000",
+    "description": "Звонкий нейлоновый щелчок для слэпа и рёва."
+  },
+  {
+    "brand": "Martin",
+    "model": "D-28",
+    "category": "acoustic",
+    "price": 2999,
+    "stock": 2,
+    "color": "#c68642",
+    "description": "Дредноут — для баллад между трэш-номерами."
+  },
+  {
+    "brand": "Yamaha",
+    "model": "FG800",
+    "category": "acoustic",
+    "price": 249,
+    "stock": 10,
+    "color": "#deb887",
+    "description": "Надёжная акустика для старта."
+  },
+  {
+    "brand": "Marshall",
+    "model": "JCM800 2203",
+    "category": "amp",
+    "price": 2499,
+    "stock": 2,
+    "color": "#c9a24a",
+    "description": "Ламповый 100-ваттный голова — звук хард-рока 80-х."
+  },
+  {
+    "brand": "Mesa/Boogie",
+    "model": "Mark V",
+    "category": "amp",
+    "price": 3299,
+    "stock": 1,
+    "color": "#1c1c1c",
+    "description": "Три канала и легендарный хай-гейн."
+  },
+  {
+    "brand": "Peavey",
+    "model": "6505",
+    "category": "amp",
+    "price": 1599,
+    "stock": 3,
+    "color": "#7f0000",
+    "description": "Голова для металкора и трэша."
+  },
+  {
+    "brand": "Boss",
+    "model": "DS-1 Distortion",
+    "category": "pedal",
+    "price": 69,
+    "stock": 15,
+    "color": "#ff7f00",
+    "description": "Оранжевая классика дисторшна."
+  },
+  {
+    "brand": "MXR",
+    "model": "Phase 90",
+    "category": "pedal",
+    "price": 99,
+    "stock": 8,
+    "color": "#ff6a00",
+    "description": "Фэйзер, который слышен на сотнях соло."
+  },
+  {
+    "brand": "Ibanez",
+    "model": "Tube Screamer TS9",
+    "category": "pedal",
+    "price": 119,
+    "stock": 9,
+    "color": "#20a040",
+    "description": "Подтяжка лампового усилителя перед соло."
+  }
+]

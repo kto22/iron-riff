@@ -1,0 +1,23 @@
+# Локальный запуск без k8s: docker compose -f infra/docker-compose.yml up --build
+# Открыть http://localhost:8080
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: shop, POSTGRES_PASSWORD: shop, POSTGRES_DB: shop }
+  redis:
+    image: redis:7.4-alpine
+  sentinel:
+    image: redis:7.4-alpine
+    depends_on: [redis]
+    command: >
+      sh -c "sleep 2; printf 'port 26379\nsentinel resolve-hostnames yes\nsentinel monitor mymaster redis 6379 1\n' > /tmp/s.conf && exec redis-sentinel /tmp/s.conf"
+  backend:
+    build: ../backend
+    depends_on: [postgres, sentinel]
+    environment:
+      DATABASE_URL: postgresql://shop:shop@postgres:5432/shop
+      REDIS_SENTINEL_HOST: sentinel
+  frontend:
+    build: ../frontend
+    depends_on: [backend]
+    ports: ["8080:80"]

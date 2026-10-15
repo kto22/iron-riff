@@ -1,0 +1,53 @@
+# Redis + Sentinel в одном поде (1 реплика). Клиент спрашивает у Sentinel адрес мастера.
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-sentinel
+  namespace: shop
+spec:
+  selector: { app: redis }
+  ports:
+    - { name: sentinel, port: 26379 }
+    - { name: redis, port: 6379 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: shop
+spec:
+  serviceName: redis-sentinel
+  replicas: 1
+  selector:
+    matchLabels: { app: redis }
+  template:
+    metadata:
+      labels: { app: redis }
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.4-alpine
+          args: ["--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru", "--save", ""]
+          ports: [{ containerPort: 6379 }]
+          resources:
+            requests: { cpu: 20m, memory: 32Mi }
+            limits: { memory: 96Mi }
+        - name: sentinel
+          image: redis:7.4-alpine
+          env:
+            - name: POD_IP
+              valueFrom: { fieldRef: { fieldPath: status.podIP } }
+          command: ["sh", "-c"]
+          args:
+            - |
+              cat > /tmp/sentinel.conf <<EOF
+              port 26379
+              sentinel monitor mymaster $POD_IP 6379 1
+              sentinel down-after-milliseconds mymaster 5000
+              sentinel failover-timeout mymaster 10000
+              EOF
+              exec redis-sentinel /tmp/sentinel.conf
+          ports: [{ containerPort: 26379 }]
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 48Mi }

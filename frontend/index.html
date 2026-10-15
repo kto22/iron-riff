@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IRON RIFF — гитарный магазин</title>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Фон: молнии, эмблема, пламя -->
+  <div class="bg">
+    <svg class="bolt bolt-l" viewBox="0 0 60 200"><path d="M35 0 L5 95 H28 L12 200 L55 80 H32 L50 0Z"/></svg>
+    <svg class="bolt bolt-r" viewBox="0 0 60 200"><path d="M35 0 L5 95 H28 L12 200 L55 80 H32 L50 0Z"/></svg>
+    <svg class="emblem" viewBox="0 0 400 260">
+      <!-- крылья -->
+      <path d="M200 120 C150 60 70 40 0 70 C50 80 70 95 80 110 C40 105 20 115 5 130 C55 125 85 135 100 150 C70 150 50 160 40 175 C90 165 130 165 170 160Z"/>
+      <path d="M200 120 C250 60 330 40 400 70 C350 80 330 95 320 110 C360 105 380 115 395 130 C345 125 315 135 300 150 C330 150 350 160 360 175 C310 165 270 165 230 160Z"/>
+      <!-- череп -->
+      <path d="M200 70 C160 70 145 100 150 130 C152 145 160 152 165 158 L168 185 H232 L235 158 C240 152 248 145 250 130 C255 100 240 70 200 70Z"/>
+      <circle cx="180" cy="128" r="13" class="hole"/><circle cx="220" cy="128" r="13" class="hole"/>
+      <path d="M200 140 L192 158 H208Z" class="hole"/>
+      <rect x="178" y="168" width="6" height="14" class="hole"/><rect x="190" y="168" width="6" height="14" class="hole"/>
+      <rect x="204" y="168" width="6" height="14" class="hole"/><rect x="216" y="168" width="6" height="14" class="hole"/>
+    </svg>
+    <div class="flames"></div>
+  </div>
+
+  <header class="top">
+    <a class="logo" href="#catalog">Iron Riff</a>
+    <nav>
+      <a href="#catalog" data-view="catalog">Каталог</a>
+      <a href="#stats" data-view="stats">Статистика</a>
+      <a href="#admin" data-view="admin">Админка</a>
+      <button id="cartBtn" class="btn btn-red">Корзина <span id="cartCount">0</span></button>
+    </nav>
+  </header>
+
+  <div class="ticker"><div class="ticker-in">
+    ★ STEEL WRAITH — WORLD TOUR '86 ★ NIGHT VULTURE — LIVE IN HELL ★ CHROME SERPENT — BLOOD &amp; THUNDER ★ IRON RIFF — СКИДКИ ГРОМЧЕ УСИЛИТЕЛЕЙ ★ STEEL WRAITH — WORLD TOUR '86 ★ NIGHT VULTURE — LIVE IN HELL ★
+  </div></div>
+
+  <main>
+    <!-- КАТАЛОГ -->
+    <section id="view-catalog" class="view">
+      <div class="hero">
+        <h1>Louder than Hell</h1>
+        <p>Гитары, басы, усилители и педали для тех, кто играет громко</p>
+      </div>
+      <div class="filters">
+        <div id="categories" class="tabs"></div>
+        <input id="search" placeholder="Поиск: Jackson, Marshall…">
+        <select id="sort">
+          <option value="name">По названию</option>
+          <option value="price_asc">Сначала дешёвые</option>
+          <option value="price_desc">Сначала дорогие</option>
+        </select>
+      </div>
+      <div id="products" class="grid"></div>
+    </section>
+
+    <!-- СТАТИСТИКА -->
+    <section id="view-stats" class="view hidden">
+      <h2 class="section-title">Статистика магазина</h2>
+      <div id="statCards" class="stat-cards"></div>
+      <div class="plate"><img id="chart" alt="График статистики"></div>
+    </section>
+
+    <!-- АДМИНКА -->
+    <section id="view-admin" class="view hidden">
+      <h2 class="section-title">Админка</h2>
+      <div class="plate">
+        <label>Токен администратора <input id="token" type="password" placeholder="X-Admin-Token"></label>
+        <button id="loadOrders" class="btn">Показать заказы</button>
+      </div>
+      <form id="productForm" class="plate form-grid">
+        <h3>Новый товар</h3>
+        <input name="brand" placeholder="Бренд" required>
+        <input name="model" placeholder="Модель" required>
+        <select name="category" id="catSelect"></select>
+        <input name="price" type="number" step="0.01" min="0" placeholder="Цена, $" required>
+        <input name="stock" type="number" min="0" placeholder="Остаток" required>
+        <input name="color" type="color" value="#d4141c">
+        <input name="description" placeholder="Описание" class="wide">
+        <button class="btn btn-red wide">Добавить</button>
+      </form>
+      <div id="orders" class="plate"></div>
+    </section>
+  </main>
+
+  <!-- КОРЗИНА -->
+  <aside id="cart" class="drawer">
+    <div class="drawer-head"><h2>Корзина</h2><button id="closeCart" class="btn">✕</button></div>
+    <div id="cartItems"></div>
+    <div class="total">Итого: <b id="cartTotal">$0</b></div>
+    <form id="checkout">
+      <input name="name" placeholder="Имя" required>
+      <input name="email" type="email" placeholder="E-mail" required>
+      <input name="phone" placeholder="Телефон" required>
+      <button class="btn btn-red">Оформить заказ</button>
+    </form>
+  </aside>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

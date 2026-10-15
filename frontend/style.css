@@ -1,0 +1,133 @@
+:root {
+  --bg: #070708; --plate: #141416; --plate2: #1d1d21; --red: #d4141c; --red2: #ff2a2a;
+  --gold: #f5b700; --steel: #c9ccd1; --text: #ececec; --muted: #9a9aa2;
+  --chrome: linear-gradient(180deg, #ffffff 0%, #d9dde3 30%, #6f7680 50%, #e9edf2 52%, #9aa1ab 75%, #ffffff 100%);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 "Oswald", sans-serif; overflow-x: hidden; }
+.hidden { display: none !important; }
+
+/* ---------- фон ---------- */
+.bg { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, #3a0006 0%, transparent 60%),
+              repeating-linear-gradient(45deg, #0c0c0e 0 2px, #09090a 2px 6px); }
+.emblem { position: absolute; left: 50%; top: 22%; width: min(800px, 95vw); transform: translateX(-50%); fill: #ffffff; opacity: .05; }
+.emblem .hole { fill: var(--bg); }
+.bolt { position: absolute; top: 12%; width: 90px; fill: var(--gold); opacity: .18; filter: drop-shadow(0 0 12px var(--gold)); }
+.bolt-l { left: 3%; transform: rotate(-12deg); }
+.bolt-r { right: 3%; transform: rotate(12deg) scaleX(-1); }
+.flames { position: absolute; left: 0; right: 0; bottom: 0; height: 180px; opacity: .55;
+  background: radial-gradient(ellipse 60px 140px at 10% 100%, var(--red2), transparent 70%),
+              radial-gradient(ellipse 80px 170px at 25% 100%, #ff7a00, transparent 70%),
+              radial-gradient(ellipse 60px 120px at 42% 100%, var(--red2), transparent 70%),
+              radial-gradient(ellipse 90px 180px at 60% 100%, #ff7a00, transparent 70%),
+              radial-gradient(ellipse 60px 130px at 78% 100%, var(--red2), transparent 70%),
+              radial-gradient(ellipse 80px 160px at 93% 100%, #ff7a00, transparent 70%);
+  filter: blur(6px); animation: flicker 1.8s infinite alternate; }
+@keyframes flicker { from { opacity: .4; transform: scaleY(.95); } to { opacity: .6; transform: scaleY(1.05); } }
+
+/* ---------- шапка ---------- */
+.top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; padding: 10px 24px; background: rgba(5,5,6,.92);
+  border-bottom: 3px solid var(--red); box-shadow: 0 4px 24px rgba(212,20,28,.35); }
+.logo { font: 54px/1 "Metal Mania", cursive; text-decoration: none; background: var(--chrome);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 10px rgba(212,20,28,.8)); letter-spacing: 2px; }
+nav { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+nav a { color: var(--steel); text-decoration: none; font: 16px "Russo One"; text-transform: uppercase; letter-spacing: 1px; }
+nav a:hover, nav a.active { color: var(--gold); text-shadow: 0 0 8px var(--gold); }
+
+.ticker { overflow: hidden; background: var(--gold); color: #000; font: 15px "Russo One"; white-space: nowrap; }
+.ticker-in { display: inline-block; padding: 4px 0; animation: run 30s linear infinite; }
+@keyframes run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 200px; }
+
+/* ---------- элементы ---------- */
+.btn { font: 14px "Russo One"; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+  padding: 8px 16px; color: var(--text); background: linear-gradient(#3a3a40, #1a1a1e);
+  border: 2px solid #5a5a62; border-radius: 3px; }
+.btn:hover { border-color: var(--gold); color: var(--gold); }
+.btn-red { background: linear-gradient(#ff2a2a, #8c0008); border-color: #ff6060; }
+.btn-red:hover { color: #fff; box-shadow: 0 0 14px var(--red2); }
+#cartCount { display: inline-block; min-width: 22px; background: #000; color: var(--gold); border-radius: 11px; padding: 0 6px; }
+
+input, select { font: 15px "Oswald"; padding: 8px 10px; color: var(--text); background: #0d0d0f;
+  border: 2px solid #3a3a40; border-radius: 3px; }
+input:focus, select:focus { outline: none; border-color: var(--red); }
+
+.plate { position: relative; background: linear-gradient(160deg, var(--plate2), var(--plate)); border: 2px solid #2e2e34;
+  padding: 18px; margin-bottom: 18px; box-shadow: inset 0 1px 0 #3a3a42, 0 8px 24px #000; }
+.plate::before, .plate::after { content: ""; position: absolute; top: 8px; width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #666); }
+.plate::before { left: 8px; } .plate::after { right: 8px; }
+
+.hero { text-align: center; padding: 30px 0 20px; }
+.hero h1 { margin: 0; font: clamp(44px, 9vw, 96px)/1 "Metal Mania"; background: var(--chrome);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 14px rgba(212,20,28,.9)); }
+.hero p { color: var(--gold); font: 18px "Russo One"; text-transform: uppercase; letter-spacing: 2px; }
+.section-title { font: 34px "Russo One"; color: var(--gold); text-transform: uppercase; text-shadow: 0 0 10px var(--red); }
+
+.filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+.filters input { flex: 1; min-width: 180px; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tab { font: 14px "Russo One"; text-transform: uppercase; cursor: pointer; padding: 6px 12px; color: var(--steel);
+  background: #111; border: 2px dashed #444; clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.tab.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* ---------- карточки ---------- */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.card { display: flex; flex-direction: column; background: linear-gradient(170deg, #1e1e22, #0f0f11);
+  border: 2px solid #2e2e34; border-top: 3px solid var(--red); transition: transform .15s, box-shadow .15s; }
+.card:hover { transform: translateY(-4px) rotate(-.4deg); box-shadow: 0 0 22px rgba(212,20,28,.55); }
+.card .pic { height: 190px; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle, #2a0a0c, #0b0b0d 70%); }
+.card .pic svg { height: 170px; filter: drop-shadow(0 6px 10px #000); }
+.card .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.card .cat { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
+.card h3 { margin: 0; font: 19px "Russo One"; }
+.card .desc { color: #bbb; font-size: 14px; flex: 1; }
+.card .row { display: flex; align-items: center; justify-content: space-between; }
+.price { font: 24px "Russo One"; color: var(--gold); }
+.stock { font-size: 13px; color: var(--muted); }
+.stock.low { color: var(--red2); }
+
+/* ---------- корзина ---------- */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100vw); z-index: 20; padding: 18px;
+  background: #0b0b0d; border-left: 3px solid var(--red); overflow-y: auto; transform: translateX(105%);
+  transition: transform .25s; box-shadow: -10px 0 40px #000; }
+.drawer.open { transform: none; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; }
+.drawer h2 { font: 26px "Russo One"; color: var(--gold); margin: 0; }
+.cart-line { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center;
+  padding: 10px 0; border-bottom: 1px dashed #333; }
+.cart-line .qty { display: flex; gap: 4px; align-items: center; }
+.cart-line .qty button { width: 28px; padding: 2px; }
+.total { font: 20px "Russo One"; margin: 16px 0; }
+.total b { color: var(--gold); }
+#checkout { display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- статистика и админка ---------- */
+.stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 18px; }
+.stat-cards .plate { text-align: center; margin: 0; }
+.stat-cards b { display: block; font: 34px "Russo One"; color: var(--gold); }
+#chart { width: 100%; display: block; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.form-grid h3, .form-grid .wide { grid-column: 1 / -1; margin: 0; }
+.form-grid h3 { font: 20px "Russo One"; color: var(--gold); }
+label { display: inline-flex; gap: 8px; align-items: center; margin-right: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #2a2a2e; }
+th { color: var(--gold); font-family: "Russo One"; font-weight: normal; }
+.del { background: none; border: none; color: var(--red2); cursor: pointer; font-size: 18px; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); z-index: 30;
+  padding: 12px 22px; background: #000; border: 2px solid var(--gold); color: var(--gold);
+  font: 16px "Russo One"; transition: transform .25s; max-width: 90vw; }
+.toast.show { transform: translate(-50%, 0); }
+.toast.err { border-color: var(--red2); color: var(--red2); }
+
+@media (max-width: 600px) {
+  .top { padding: 10px 16px; } .logo { font-size: 40px; } .bolt { display: none; }
+}
