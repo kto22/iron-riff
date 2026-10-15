@@ -11,6 +11,7 @@ spec:
     metadata:
       labels: { app: backend }
     spec:
+      enableServiceLinks: false   # иначе k8s подставит REDIS_SENTINEL_PORT=tcp://...
       containers:
         - name: backend
           image: shop-backend:1.0
@@ -20,6 +21,7 @@ spec:
               valueFrom:
                 secretKeyRef: { name: shop-db-pguser-shop, key: uri }
             - { name: REDIS_SENTINEL_HOST, value: redis-sentinel }
+            - { name: REDIS_SENTINEL_PORT, value: "26379" }
             - { name: REDIS_MASTER_NAME, value: mymaster }
             - name: ADMIN_TOKEN
               valueFrom:
