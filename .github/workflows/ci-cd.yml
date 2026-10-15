@@ -1,7 +1,12 @@
 # CI/CD: test -> build -> deploy.
-# test и build идут на каждый push/PR, deploy — только при push в main.
+# test и build идут на каждый push/PR; при push в main образы пушатся в ghcr.io,
+# а deploy подтягивает их на сервер (прямая загрузка с раннеров GitHub на VPS слишком медленная).
 # Нужные секреты репозитория: SERVER_HOST (IP сервера) и SSH_KEY (приватный ключ для root).
 name: CI/CD
+
+permissions:
+  contents: read
+  packages: write
 
 on:
   push:
@@ -27,6 +32,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
+    env:
+      REGISTRY: ghcr.io/${{ github.repository }}
     steps:
       - uses: actions/checkout@v4
 
@@ -34,36 +41,41 @@ jobs:
         id: tag
         run: echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
+      - name: Войти в GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Собрать образы
         env:
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          docker build -t shop-backend:$TAG backend
-          docker build -t shop-frontend:$TAG frontend
-          docker save shop-backend:$TAG shop-frontend:$TAG | gzip > images.tar.gz
+          docker build -t $REGISTRY/backend:$TAG backend
+          docker build -t $REGISTRY/frontend:$TAG frontend
 
-      - name: Сохранить образы для deploy
-        uses: actions/upload-artifact@v4
-        with:
-          name: images
-          path: images.tar.gz
-          retention-days: 1
+      - name: Запушить образы (только main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          docker push $REGISTRY/backend:$TAG
+          docker push $REGISTRY/frontend:$TAG
 
   deploy:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    concurrency: deploy
+    concurrency:
+      group: deploy
+      cancel-in-progress: true
     env:
       HOST: ${{ secrets.SERVER_HOST }}
       TAG: ${{ needs.build.outputs.tag }}
+      REGISTRY: ghcr.io/${{ github.repository }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Скачать образы из build
-        uses: actions/download-artifact@v4
-        with:
-          name: images
 
       - name: Настроить SSH
         run: |
@@ -72,27 +84,33 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
+      - name: Доступ кластера к ghcr.io
+        # токен передаём через stdin, чтобы он не попал в историю команд на сервере
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | ssh root@$HOST "microk8s kubectl -n shop create secret docker-registry ghcr-pull \
+            --docker-server=ghcr.io --docker-username=${{ github.actor }} --docker-password=\"\$(cat)\" \
+            --dry-run=client -o yaml | microk8s kubectl apply -f -"
+
       - name: Освободить место на сервере
-        # диск всего 10 ГБ: заранее удаляем образы магазина, которые сейчас не запущены
+        # диск всего 10 ГБ: удаляем образы магазина, которые сейчас не запущены
         run: |
           ssh root@$HOST 'used=$(microk8s kubectl -n shop get pods -o jsonpath="{.items[*].spec.containers[*].image}");
-            for img in $(microk8s ctr images ls -q | grep -E "shop-(backend|frontend):"); do
+            for img in $(microk8s ctr images ls -q | grep -E "(shop-|iron-riff/)(backend|frontend):"); do
               echo "$used" | grep -qw "${img#docker.io/library/}" || microk8s ctr images rm "$img";
             done; df -h / | tail -1'
 
-      - name: Загрузить образы на сервер
-        run: ssh root@$HOST 'gunzip | microk8s ctr image import -' < images.tar.gz
-
       - name: Применить манифесты
         run: |
-          for f in infra/k8s/*.yaml; do sed "s/\(shop-[a-z]*\):1\.0/\1:$TAG/" "$f"; echo "---"; done \
-            | ssh root@$HOST 'microk8s kubectl apply -f -'
-          ssh root@$HOST "microk8s kubectl -n shop rollout status deploy/backend --timeout=300s && \
-                          microk8s kubectl -n shop rollout status deploy/frontend --timeout=120s"
+          for f in infra/k8s/*.yaml; do
+            sed -e "s#image: shop-\(backend\|frontend\):1\.0#image: $REGISTRY/\1:$TAG#" \
+                -e "s#imagePullPolicy: Never.*#imagePullPolicy: IfNotPresent#" "$f"; echo "---"
+          done | ssh root@$HOST 'microk8s kubectl apply -f -'
+          ssh root@$HOST "microk8s kubectl -n shop rollout status deploy/backend --timeout=600s && \
+                          microk8s kubectl -n shop rollout status deploy/frontend --timeout=300s"
 
-      - name: Удалить старые образы (на сервере мало места)
+      - name: Удалить старые образы
         run: |
-          ssh root@$HOST "microk8s ctr images ls -q | grep -E 'shop-(backend|frontend):' | grep -v ':$TAG\$' | xargs -r microk8s ctr images rm"
+          ssh root@$HOST "microk8s ctr images ls -q | grep -E '(shop-|iron-riff/)(backend|frontend):' | grep -v ':$TAG\$' | xargs -r microk8s ctr images rm"
 
       - name: Проверка
         run: curl -fsS --retry 5 --retry-delay 3 http://$HOST/api/health

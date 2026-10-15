@@ -12,6 +12,8 @@ spec:
       labels: { app: backend }
     spec:
       enableServiceLinks: false   # иначе k8s подставит REDIS_SENTINEL_PORT=tcp://...
+      imagePullSecrets:
+        - name: ghcr-pull   # создаётся CI при деплое
       containers:
         - name: backend
           image: shop-backend:1.0

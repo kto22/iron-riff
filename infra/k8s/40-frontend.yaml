@@ -11,6 +11,8 @@ spec:
     metadata:
       labels: { app: frontend }
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull   # создаётся CI при деплое
       containers:
         - name: frontend
           image: shop-frontend:1.0
